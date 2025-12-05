@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gc-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/nnikolovskiii/idre.git' # <--- CHANGE THIS
+    targetRevision: HEAD
+    path: charts/gc-app
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true    # Deletes resources that are no longer in Git
+      selfHeal: true # Undoes manual changes made via kubectl

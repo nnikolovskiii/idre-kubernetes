@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  VITE_API_BASE_URL: {{ .Values.frontend.config.viteApiBaseUrl | quote }}
+  VITE_GOOGLE_CLIENT_ID: {{ .Values.frontend.config.viteGoogleClientId | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+data:
+  POSTGRES_USER: {{ .Values.postgres.user | quote }}
+  POSTGRES_DB: {{ .Values.postgres.dbName | quote }}

@@ -1,0 +1,73 @@
+# -----------------------------
+# Kubernetes & Cluster Configs
+# -----------------------------
+# Standard kubeconfig file name (often created by scripts)
+kubeconfig
+.kube/
+config
+
+# Minikube / Kind / K3d local cluster states
+.minikube/
+.kind/
+.k3d/
+
+# -----------------------------
+# Secrets & Security (CRITICAL)
+# -----------------------------
+# Pattern matching for common secret files
+# It is better to rely on SealedSecrets, SOPS, or Vault than to commit raw secrets.
+secrets.yaml
+secrets.json
+secret.yaml
+secret.json
+*.key
+*.p12
+*.pfx
+*.pem
+*.csr
+# Ignore decrypted files if using SOPS or similar tools
+*.dec
+*.decrypted.*
+
+
+# Helm packaged charts
+*.tgz
+
+# -----------------------------
+# Docker / Container Artifacts
+# -----------------------------
+# If you build images inside this repo
+.docker/
+docker-compose.override.yml
+
+# -----------------------------
+# Tool-Specific Artifacts
+# -----------------------------
+# Skaffold
+.skaffold/
+
+# Tilt
+.tilt/
+
+# Kustomize (if you output builds to a file)
+kustomize-build.yaml
+
+# Terraform (often lives alongside K8s files)
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+# Keep example tfvars, ignore real ones
+!example.tfvars
+
+# -----------------------------
+# IDE & OS Files
+# -----------------------------
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+.env.ai
+.env

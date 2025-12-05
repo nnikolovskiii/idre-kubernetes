@@ -1,0 +1,89 @@
+# Global settings
+storageClass: "hcloud-volumes"
+imagePullSecrets:
+  - name: regcred
+
+# Certificate Manager
+clusterIssuer:
+  email: "nikolovski.nikola42@gmail.com"
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  hosts:
+    frontend: "k8s.idre.live"
+    backend: "k8s.gcb.nikolanikolovski.com"
+
+# --- Infrastructure Components ---
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16"
+  storage: "10Gi"
+  dbName: "postgres"
+  user: "postgres"
+  # Password should ideally come from a pre-existing secret, 
+  # but we reference the secret name here
+  secretName: "postgres-secret" 
+
+redis:
+  image:
+    repository: redis
+    tag: "6"
+  storage: "5Gi"
+
+seaweedfs:
+  image:
+    repository: chrislusf/seaweedfs
+    tag: "latest" # or specify specific version
+  storage: "20Gi"
+  resources:
+    limits:
+      memory: "1Gi"
+    requests:
+      memory: "512Mi"
+
+# --- Application Components ---
+
+frontend:
+  image:
+    repository: nnikolovskii/gc-frontend
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    port: 3000
+  resources:
+    limits:
+      memory: "256Mi"
+    requests:
+      memory: "128Mi"
+  config:
+    viteApiBaseUrl: "https://k8s.gcb.nikolanikolovski.com"
+    viteGoogleClientId: "977607414494-uc5qvjun88vm7nguhm4vgls91j4mfcas.apps.googleusercontent.com"
+
+backend:
+  image:
+    repository: nnikolovskii/gc-backend
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    port: 8001
+  resources:
+    limits:
+      memory: "512Mi"
+    requests:
+      memory: "256Mi"
+
+ai:
+  image:
+    repository: nnikolovskii/gc-ai
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    port: 8000
+  resources:
+    limits:
+      memory: "1Gi"
+    requests:
+      memory: "512Mi"

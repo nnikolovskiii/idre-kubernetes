@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langgraph-postgres-nik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langgraph-postgres-nik
+  template:
+    metadata:
+      labels:
+        app: langgraph-postgres-nik
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_DB
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.postgres.secretName }}
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-data
+          subPath: pgdata
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "{{ .Values.postgres.user }}"]
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 1
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "{{ .Values.postgres.user }}"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 1
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: langgraph-postgres-data-nik
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: langgraph-postgres-nik
+spec:
+  selector:
+    app: langgraph-postgres-nik
+  ports:
+  - port: 5432
+    targetPort: 5432

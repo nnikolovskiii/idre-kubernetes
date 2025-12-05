@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langgraph-api-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langgraph-api-ai
+  template:
+    metadata:
+      labels:
+        app: langgraph-api-ai
+    spec:
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+      containers:
+      - name: ai
+        image: "{{ .Values.ai.image.repository }}:{{ .Values.ai.image.tag }}"
+        imagePullPolicy: {{ .Values.ai.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.ai.service.port }}
+        envFrom:
+        - secretRef:
+            name: app-env
+        env:
+        - name: PORT
+          value: "{{ .Values.ai.service.port }}"
+        resources:
+{{ toYaml .Values.ai.resources | indent 10 }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.ai.service.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.ai.service.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: langgraph-api-ai
+spec:
+  selector:
+    app: langgraph-api-ai
+  ports:
+  - port: {{ .Values.ai.service.port }}
+    targetPort: {{ .Values.ai.service.port }}

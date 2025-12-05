@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langgraph-redis-nik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langgraph-redis-nik
+  template:
+    metadata:
+      labels:
+        app: langgraph-redis-nik
+    spec:
+      containers:
+      - name: redis
+        image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+        ports:
+        - containerPort: 6379
+        command: ["redis-server", "--appendonly", "yes"]
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        readinessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: langgraph-redis-data-nik
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: langgraph-redis-nik
+spec:
+  selector:
+    app: langgraph-redis-nik
+  ports:
+  - port: 6379
+    targetPort: 6379
