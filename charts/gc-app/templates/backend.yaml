@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: backend
 spec:
+  {{- if not .Values.autoscaling.backend.enabled }}
   replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: backend
@@ -12,6 +14,25 @@ spec:
       labels:
         app: backend
     spec:
+      {{- if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: backend
+            topologyKey: kubernetes.io/hostname
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: backend
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+      {{- end }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
       containers:
@@ -27,7 +48,12 @@ spec:
         - name: PORT
           value: "{{ .Values.backend.service.port }}"
         resources:
-{{ toYaml .Values.backend.resources | indent 10 }}
+          limits:
+            cpu: "1000m"
+            memory: {{ .Values.backend.resources.limits.memory }}
+          requests:
+            cpu: "200m"
+            memory: {{ .Values.backend.resources.requests.memory }}
         readinessProbe:
           tcpSocket:
             port: {{ .Values.backend.service.port }}

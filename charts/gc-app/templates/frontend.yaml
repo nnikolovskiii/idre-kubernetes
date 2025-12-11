@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: ui
 spec:
+  {{- if not .Values.autoscaling.frontend.enabled }}
   replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: ui
@@ -12,6 +14,25 @@ spec:
       labels:
         app: ui
     spec:
+      {{- if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: ui
+            topologyKey: kubernetes.io/hostname
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: ui
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+      {{- end }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
       containers:
@@ -24,7 +45,12 @@ spec:
         - configMapRef:
             name: frontend-config
         resources:
-{{ toYaml .Values.frontend.resources | indent 10 }}
+          limits:
+            cpu: "500m"
+            memory: {{ .Values.frontend.resources.limits.memory }}
+          requests:
+            cpu: "100m"
+            memory: {{ .Values.frontend.resources.requests.memory }}
         readinessProbe:
           tcpSocket:
             port: {{ .Values.frontend.service.port }}

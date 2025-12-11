@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: langgraph-api-ai
 spec:
+  {{- if not .Values.autoscaling.ai.enabled }}
   replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: langgraph-api-ai
@@ -12,6 +14,25 @@ spec:
       labels:
         app: langgraph-api-ai
     spec:
+      {{- if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: langgraph-api-ai
+            topologyKey: kubernetes.io/hostname
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: langgraph-api-ai
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+      {{- end }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
       containers:
@@ -27,7 +48,12 @@ spec:
         - name: PORT
           value: "{{ .Values.ai.service.port }}"
         resources:
-{{ toYaml .Values.ai.resources | indent 10 }}
+          limits:
+            cpu: "2000m"
+            memory: {{ .Values.ai.resources.limits.memory }}
+          requests:
+            cpu: "500m"
+            memory: {{ .Values.ai.resources.requests.memory }}
         readinessProbe:
           tcpSocket:
             port: {{ .Values.ai.service.port }}
