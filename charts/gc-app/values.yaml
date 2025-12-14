@@ -41,7 +41,7 @@ seaweedfs:
 frontend:
   image:
     repository: nnikolovskii/gc-frontend
-    tag: "253d1ca1383a2890d2bcc435bad52d45026bc7b4"
+    tag: "5a3ea3876bd6a8a3282ef0df75facf92f64e93c0"
     pullPolicy: Always
   service:
     port: 3000
@@ -56,7 +56,7 @@ frontend:
 backend:
   image:
     repository: nnikolovskii/gc-backend
-    tag: "253d1ca1383a2890d2bcc435bad52d45026bc7b4"
+    tag: "5a3ea3876bd6a8a3282ef0df75facf92f64e93c0"
     pullPolicy: Always
   service:
     port: 8001
@@ -68,7 +68,7 @@ backend:
 ai:
   image:
     repository: nnikolovskii/gc-ai
-    tag: "253d1ca1383a2890d2bcc435bad52d45026bc7b4"
+    tag: "5a3ea3876bd6a8a3282ef0df75facf92f64e93c0"
     pullPolicy: Always
   service:
     port: 8000
@@ -77,8 +77,6 @@ ai:
       memory: "1Gi"
     requests:
       memory: "512Mi"
-
-
 # --- Add at the end of values.yaml ---
 # Autoscaling Configuration
 autoscaling:
@@ -88,14 +86,12 @@ autoscaling:
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
-
   backend:
     enabled: true
     minReplicas: 2
     maxReplicas: 10
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
-
   ai:
     enabled: true
     minReplicas: 2
