@@ -41,7 +41,7 @@ seaweedfs:
 frontend:
   image:
     repository: nnikolovskii/gc-frontend
-    tag: "afdc2470d7d6b729581e6c20d7276980bedab471"
+    tag: "e01adb94ebe1e7b8e3420970f07b36bd2a2b1b3d"
     pullPolicy: Always
   service:
     port: 3000
@@ -56,7 +56,7 @@ frontend:
 backend:
   image:
     repository: nnikolovskii/gc-backend
-    tag: "afdc2470d7d6b729581e6c20d7276980bedab471"
+    tag: "e01adb94ebe1e7b8e3420970f07b36bd2a2b1b3d"
     pullPolicy: Always
   service:
     port: 8001
@@ -68,7 +68,7 @@ backend:
 ai:
   image:
     repository: nnikolovskii/gc-ai
-    tag: "afdc2470d7d6b729581e6c20d7276980bedab471"
+    tag: "e01adb94ebe1e7b8e3420970f07b36bd2a2b1b3d"
     pullPolicy: Always
   service:
     port: 8000
